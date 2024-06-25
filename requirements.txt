@@ -4,3 +4,4 @@ numpy
 streamlit-option-menu
 python-dotenv
 streamlit-aggrid
+extra-streamlit-components
