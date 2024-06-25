@@ -6,6 +6,8 @@ import home
 import info_cadastral
 import info_diario
 import about
+import streamlit.components.v1 as components
+
 
 # Load environment variables from .env filemyenv\Scripts\activate
 
@@ -13,6 +15,8 @@ load_dotenv()
 
 # Set the page title for the Streamlit app
 st.set_page_config(page_title="Consulta CVM")
+
+
 
 # Function to run the Streamlit app with multi-page navigation
 
@@ -55,6 +59,32 @@ class MultiApp:
             info_cadastral.app()
         elif app == 'About':
             about.app()
+            
+
+# Your custom HTML with the script tag for monetization
+custom_html = """
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- Add any additional head content here -->
+</head>
+<body>
+    <script type="text/javascript">
+	atOptions = {
+		'key' : '6061c3328cd4a2114ac481b4cbae2cde',
+		'format' : 'iframe',
+		'height' : 60,
+		'width' : 468,
+		'params' : {}
+	};
+</script>
+<script type="text/javascript" src="//www.topcreativeformat.com/6061c3328cd4a2114ac481b4cbae2cde/invoke.js"></script>
+</body>
+</html>
+"""
+
+# Embed the custom HTML in your Streamlit app
+components.html(custom_html, height=500)        
 
 
 # Instantiate MultiApp and run the application
