@@ -34,6 +34,9 @@ def app():
 
     df_info_diario = load_data()
     
+    # Format the DT_COMPTC column to day-month-year for display
+    df_info_diario['DT_COMPTC'] = df_info_diario['DT_COMPTC'].dt.strftime('%d-%m-%Y')
+    
     # Initialize session state for filters
     if 'search_term' not in st.session_state:
         st.session_state['search_term'] = ''
@@ -68,11 +71,17 @@ def app():
     st.session_state['date_range'] = (start_date, end_date)
     
     # Convert selected dates to datetime for filtering
-    start_date = pd.to_datetime(start_date)
-    end_date = pd.to_datetime(end_date)
+    start_date = pd.to_datetime(start_date, format='%Y-%m-%d')
+    end_date = pd.to_datetime(end_date, format='%Y-%m-%d')
     
-    df_info_diario = df_info_diario[(pd.to_datetime(df_info_diario['DT_COMPTC'], format='%d-%m-%Y') >= start_date) & 
-                                    (pd.to_datetime(df_info_diario['DT_COMPTC'], format='%d-%m-%Y') <= end_date)]
+    # Ensure DT_COMPTC is converted back to datetime before filtering
+    df_info_diario['DT_COMPTC'] = pd.to_datetime(df_info_diario['DT_COMPTC'], format='%d-%m-%Y')
+    
+    df_info_diario = df_info_diario[(df_info_diario['DT_COMPTC'] >= start_date) & 
+                                    (df_info_diario['DT_COMPTC'] <= end_date)]
+    
+    # Format the DT_COMPTC column back to day-month-year for display
+    df_info_diario['DT_COMPTC'] = df_info_diario['DT_COMPTC'].dt.strftime('%d-%m-%Y')
     
     st.write(df_info_diario)
     
