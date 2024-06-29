@@ -20,6 +20,7 @@ custom_html = """
 <html>
 <head>
     <!-- Add any additional head content here -->
+<meta name="monetag" content="ee258e12eb3275245f01eba2200ba907">
 </head>
 <body>
     <script type="text/javascript">
