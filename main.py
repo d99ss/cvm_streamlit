@@ -23,17 +23,16 @@ custom_html = """
 <meta name="monetag" content="ee258e12eb3275245f01eba2200ba907">
 </head>
 <body>
-    <script type='text/javascript' src='//intellectualtimetableindependence.com/82/b1/7b/82b17ba4910260d9c9a2bba80ebe5ddf.js'></script>
-    <script type="text/javascript">
-        atOptions = {
-            'key' : '6061c3328cd4a2114ac481b4cbae2cde',
-            'format' : 'iframe',
-            'height' : 60,
-            'width' : 468,
-            'params' : {}
-        };
-    </script>
-    <script type="text/javascript" src="//www.topcreativeformat.com/6061c3328cd4a2114ac481b4cbae2cde/invoke.js"></script>
+<script type="text/javascript">
+	atOptions = {
+		'key' : '6c5b1b04f6f5f0dff5ab162665d63c36',
+		'format' : 'iframe',
+		'height' : 600,
+		'width' : 160,
+		'params' : {}
+	};
+</script>
+<script type="text/javascript" src="//intellectualtimetableindependence.com/6c5b1b04f6f5f0dff5ab162665d63c36/invoke.js"></script>
 </body>
 </html>
 """
