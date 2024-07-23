@@ -155,7 +155,7 @@ def app():
 
     df_xlsx = to_excel(df_info_diario)
 
-    st.download_button(label='📥 Download Current Data as Excel',
+    st.download_button(label='📥 Download Excel',
                        data=df_xlsx,
                        file_name='filtered_data.xlsx',
                        mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
