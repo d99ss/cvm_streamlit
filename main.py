@@ -27,7 +27,7 @@ class MultiApp:
     def run(self):
         # Main menu navigation using option_menu with horizontal orientation
         app = option_menu(
-            menu_title='Main Menu',
+            menu_title='',
             options=['Home', 'Cadastro de Fundos', 'Fundos: Informação diária', 'About'],
             icons=['house', 'person-circle', 'clipboard-pulse', 'info-circle'],
             menu_icon='cast',
