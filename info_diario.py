@@ -31,7 +31,7 @@ def app():
         
         return df_info_diario
 
-    # Month selection
+    # Month selection in sidebar
     months = {
         "Janeiro 2021": "202101",
         "Fevereiro 2021": "202102",
@@ -77,7 +77,7 @@ def app():
         "Junho 2024": "202406",
         "Julho 2024": "202407"
     }
-    selected_month = st.selectbox("Selecione o mês", options=list(months.keys()))
+    selected_month = st.sidebar.selectbox("Selecione o mês", options=list(months.keys()))
     month_code = months[selected_month]
 
     df_info_diario = load_data(month_code)
@@ -100,8 +100,8 @@ def app():
         if st.session_state['date_range'][0] < min_date or st.session_state['date_range'][1] > max_date:
             st.session_state['date_range'] = (min_date, max_date)
     
-    # Search box for CNPJ
-    search_term = st.text_input("Pesquisar por CNPJ", st.session_state['search_term'])
+    # Search box for CNPJ in sidebar
+    search_term = st.sidebar.text_input("Pesquisar por CNPJ", st.session_state['search_term'])
     st.session_state['search_term'] = search_term
     
     if search_term:
@@ -110,15 +110,15 @@ def app():
         matches = get_close_matches(search_term, cnpjs, n=10, cutoff=0.1)
         df_info_diario = df_info_diario[df_info_diario['CNPJ_FUNDO'].str.replace(".", "").str.replace("/", "").str.replace("-", "").isin(matches)]
     
-    # Slicer for TP_FUNDO
-    selected_types = st.multiselect("Filtrar por TP_FUNDO", options=df_info_diario['TP_FUNDO'].unique(), default=st.session_state['selected_types'])
+    # Slicer for TP_FUNDO in sidebar
+    selected_types = st.sidebar.multiselect("Filtrar por TP_FUNDO", options=df_info_diario['TP_FUNDO'].unique(), default=st.session_state['selected_types'])
     st.session_state['selected_types'] = selected_types
     
     if selected_types:
         df_info_diario = df_info_diario[df_info_diario['TP_FUNDO'].isin(selected_types)]
     
-    # Date slider for DT_COMPTC
-    start_date, end_date = st.date_input("Selecione o intervalo de datas", st.session_state['date_range'], min_value=min_date, max_value=max_date)
+    # Date slider for DT_COMPTC in sidebar
+    start_date, end_date = st.sidebar.date_input("Selecione o intervalo de datas", st.session_state['date_range'], min_value=min_date, max_value=max_date)
     st.session_state['date_range'] = (start_date, end_date)
     
     # Convert selected dates to datetime for filtering
@@ -136,8 +136,8 @@ def app():
     
     st.write(df_info_diario)
     
-    # Clear all button
-    if st.button('Clear All'):
+    # Clear all button in sidebar
+    if st.sidebar.button('Clear All'):
         st.session_state['search_term'] = ''
         st.session_state['selected_types'] = []
         st.session_state['date_range'] = (min_date, max_date)
