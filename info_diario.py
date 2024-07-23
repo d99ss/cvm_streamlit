@@ -15,10 +15,10 @@ def app():
     st.divider()
 
     @st.cache_data(persist=True)
-    def load_data():
+    def load_data(month):
         # Get info diario
-        arquivo = 'inf_diario_fi_202307.csv'
-        link = 'https://dados.cvm.gov.br/dados/FI/DOC/INF_DIARIO/DADOS/inf_diario_fi_202307.zip'
+        arquivo = f'inf_diario_fi_{month}.csv'
+        link = f'https://dados.cvm.gov.br/dados/FI/DOC/INF_DIARIO/DADOS/inf_diario_fi_{month}.zip'
         r_info_diario = requests.get(link)
         zf = zipfile.ZipFile(io.BytesIO(r_info_diario.content))
         zf = zf.open(arquivo)
@@ -32,23 +32,77 @@ def app():
         
         return df_info_diario
 
-    df_info_diario = load_data()
+    # Month selection
+    months = {
+        "Janeiro 2021": "202101",
+        "Fevereiro 2021": "202102",
+        "Março 2021": "202103",
+        "Abril 2021": "202104",
+        "Maio 2021": "202105",
+        "Junho 2021": "202106",
+        "Julho 2021": "202107",
+        "Agosto 2021": "202108",
+        "Setembro 2021": "202109",
+        "Outubro 2021": "202110",
+        "Novembro 2021": "202111",
+        "Dezembro 2021": "202112",
+        "Janeiro 2022": "202201",
+        "Fevereiro 2022": "202202",
+        "Março 2022": "202203",
+        "Abril 2022": "202204",
+        "Maio 2022": "202205",
+        "Junho 2022": "202206",
+        "Julho 2022": "202207",
+        "Agosto 2022": "202208",
+        "Setembro 2022": "202209",
+        "Outubro 2022": "202210",
+        "Novembro 2022": "202211",
+        "Dezembro 2022": "202212",
+        "Janeiro 2023": "202301",
+        "Fevereiro 2023": "202302",
+        "Março 2023": "202303",
+        "Abril 2023": "202304",
+        "Maio 2023": "202305",
+        "Junho 2023": "202306",
+        "Julho 2023": "202307",
+        "Agosto 2023": "202308",
+        "Setembro 2023": "202309",
+        "Outubro 2023": "202310",
+        "Novembro 2023": "202311",
+        "Dezembro 2023": "202312",
+        "Janeiro 2024": "202401",
+        "Fevereiro 2024": "202402",
+        "Março 2024": "202403",
+        "Abril 2024": "202404",
+        "Maio 2024": "202405",
+        "Junho 2024": "202406",
+        "Julho 2024": "202407"
+    }
+    selected_month = st.selectbox("Selecione o mês", options=list(months.keys()))
+    month_code = months[selected_month]
+
+    df_info_diario = load_data(month_code)
     
     # Format the DT_COMPTC column to day-month-year for display
     df_info_diario['DT_COMPTC'] = df_info_diario['DT_COMPTC'].dt.strftime('%d-%m-%Y')
     
     # Initialize session state for filters
+    min_date = pd.to_datetime(df_info_diario['DT_COMPTC'], format='%d-%m-%Y').min().date()
+    max_date = pd.to_datetime(df_info_diario['DT_COMPTC'], format='%d-%m-%Y').max().date()
+    
     if 'search_term' not in st.session_state:
         st.session_state['search_term'] = ''
     if 'selected_types' not in st.session_state:
         st.session_state['selected_types'] = []
     if 'date_range' not in st.session_state:
-        min_date = pd.to_datetime(df_info_diario['DT_COMPTC'], format='%d-%m-%Y').min().date()
-        max_date = pd.to_datetime(df_info_diario['DT_COMPTC'], format='%d-%m-%Y').max().date()
         st.session_state['date_range'] = (min_date, max_date)
+    else:
+        # Ensure the date range is within the current month's range
+        if st.session_state['date_range'][0] < min_date or st.session_state['date_range'][1] > max_date:
+            st.session_state['date_range'] = (min_date, max_date)
     
     # Search box for CNPJ
-    search_term = st.text_input("Search for CNPJ", st.session_state['search_term'])
+    search_term = st.text_input("Pesquisar por CNPJ", st.session_state['search_term'])
     st.session_state['search_term'] = search_term
     
     if search_term:
@@ -58,16 +112,14 @@ def app():
         df_info_diario = df_info_diario[df_info_diario['CNPJ_FUNDO'].str.replace(".", "").str.replace("/", "").str.replace("-", "").isin(matches)]
     
     # Slicer for TP_FUNDO
-    selected_types = st.multiselect("Filter by TP_FUNDO", options=df_info_diario['TP_FUNDO'].unique(), default=st.session_state['selected_types'])
+    selected_types = st.multiselect("Filtrar por TP_FUNDO", options=df_info_diario['TP_FUNDO'].unique(), default=st.session_state['selected_types'])
     st.session_state['selected_types'] = selected_types
     
     if selected_types:
         df_info_diario = df_info_diario[df_info_diario['TP_FUNDO'].isin(selected_types)]
     
     # Date slider for DT_COMPTC
-    min_date = pd.to_datetime(df_info_diario['DT_COMPTC'], format='%d-%m-%Y').min().date()
-    max_date = pd.to_datetime(df_info_diario['DT_COMPTC'], format='%d-%m-%Y').max().date()
-    start_date, end_date = st.date_input("Select date range", st.session_state['date_range'], min_value=min_date, max_value=max_date)
+    start_date, end_date = st.date_input("Selecione o intervalo de datas", st.session_state['date_range'], min_value=min_date, max_value=max_date)
     st.session_state['date_range'] = (start_date, end_date)
     
     # Convert selected dates to datetime for filtering
@@ -86,7 +138,7 @@ def app():
     st.write(df_info_diario)
     
     # Clear all button
-    if st.button('Clear all'):
+    if st.button('Limpar tudo'):
         st.session_state['search_term'] = ''
         st.session_state['selected_types'] = []
         st.session_state['date_range'] = (min_date, max_date)
@@ -96,9 +148,9 @@ def app():
     @st.cache_data
     def to_excel(df):
         output = io.BytesIO()
-        writer = pd.ExcelWriter(output, engine='xlsxwriter')
-        df.to_excel(writer, index=False, sheet_name='Sheet1')
-        writer.close()
+        with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+            df.to_excel(writer, index=False, sheet_name='Sheet1')
+        output.seek(0)
         processed_data = output.getvalue()
         return processed_data
 
@@ -106,7 +158,8 @@ def app():
 
     st.download_button(label='📥 Download Current Data as Excel',
                        data=df_xlsx,
-                       file_name='filtered_data.xlsx')
+                       file_name='filtered_data.xlsx',
+                       mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
 if __name__ == "__main__":
     app()
