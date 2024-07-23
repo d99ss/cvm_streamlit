@@ -8,5 +8,5 @@ def app():
     st.write("O consultacvm.streamlit.app disponibiliza a consulta aos Fundos de Investimento registrados na CVM de forma gratuita.")
     st.write("Podem ser obtidas todas as informações públicas dos fundos, tais como dados cadastrais, valor diário da cota e do patrimônio líquido, número de cotistas, valores captados e resgatados.")
     st.write("Consulte, através dos ícones, os dados cadastrais dos fundos de investimento registrados na CVM e o INFORME DIÁRIO.")
-    st.write(f"Todos os dados são obtidos de forma gratuita através do **Portal Dados Abertos CVM** e atualizados a cada atualização da página.")
+    st.write(f"Todos os dados são obtidos através do **Portal Dados Abertos CVM** e atualizados diariamente.")
 
