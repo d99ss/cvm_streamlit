@@ -48,8 +48,8 @@ def app():
     
 
     # Date range filter
-    st.write("### Filter by Date Range")
-    start_date, end_date = st.date_input("Select date range", [st.session_state.start_date, st.session_state.end_date], min_value=data['DT_REG'].min(), max_value=data['DT_REG'].max())
+    st.write("### Filter by Data")
+    start_date, end_date = st.date_input("Select date", [st.session_state.start_date, st.session_state.end_date], min_value=data['DT_REG'].min(), max_value=data['DT_REG'].max())
 
     if start_date is not None and end_date is not None:
         st.session_state.start_date = start_date
@@ -60,7 +60,7 @@ def app():
         filtered_data = data
 
     # Filter by TP_FUNDO
-    st.write("### Filter by Type of Fund")
+    st.write("### Filter by Tipo de Fundo")
     fund_types = filtered_data['TP_FUNDO'].unique().tolist()
     fund_types.insert(0, "All")  # Add 'All' option to the list
     selected_fund_type = st.selectbox("Select Fund Type", options=fund_types, index=fund_types.index(st.session_state.selected_fund_type))
@@ -72,7 +72,7 @@ def app():
         filtered_data = filtered_data[filtered_data['TP_FUNDO'].isin(fund_types)]
 
     # Filter by SIT
-    st.write("### Filter by Situation (SIT)")
+    st.write("### Filter by Situação (SIT)")
     sit_options = filtered_data['SIT'].unique().tolist()
     sit_options.insert(0, "All")  # Add 'All' option to the list
     selected_sit = st.selectbox("Select Situation", options=sit_options, index=sit_options.index(st.session_state.selected_sit))
@@ -84,8 +84,8 @@ def app():
         filtered_data = filtered_data[filtered_data['SIT'].isin(sit_options)]
 
     # Search by CNPJ_FUNDO
-    st.write("### Search by CNPJ_FUNDO")
-    search_term = st.text_input("Enter CNPJ_FUNDO", value=st.session_state.search_term)
+    st.write("### Search by CNPJ")
+    search_term = st.text_input("Enter CNPJ", value=st.session_state.search_term)
     
     if search_term:
         st.session_state.search_term = search_term
@@ -120,7 +120,7 @@ def app():
         filtered_data.to_excel(writer, index=False, sheet_name='Filtered Data')
     output.seek(0)
     st.download_button(
-        label='📥 Download Current Data as Excel',
+        label='📥 Download Excel',
         data=output,
         file_name='filtered_data.xlsx',
         mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
