@@ -2,17 +2,17 @@ import streamlit as st
 import pandas as pd
 import time
 import requests
-from st_aggrid import AgGrid, GridOptionsBuilder
 from streamlit_option_menu import option_menu
 import io
 
 def app():
-    st.title('Fundos de Investimento: Informação Cadastral')
+    st.header('Fundos de Investimento:')
+    st.subheader('Informação Cadastral')
     st.write("Dados cadastrais de fundos de investimento estruturados e não estruturados (ICVM 555), tais como: CNPJ, data de registro e situação do fundo.")
     st.divider()
 
     # Get info cadastral
-    @st.cache_data(persist=True)
+    @st.cache_data(ttl=60)  # Cache the data for 60 seconds
     def load_data():
         start_time = time.time()
         r = requests.get('https://dados.cvm.gov.br/dados/FI/CAD/DADOS/cad_fi.csv')
@@ -97,6 +97,14 @@ def app():
         if col.startswith('DT_'):
             display_filtered_data[col] = display_filtered_data[col].dt.strftime('%d-%m-%Y')
             
+
+    # Display the most recent date in the DT_REG column
+    most_recent_date = data['DT_REG'].max()
+    st.write(f"The most recent date in the dataset is: {most_recent_date.strftime('%d-%m-%Y')}")
+
+    # Display the filtered DataFrame using st.write
+    st.write(display_filtered_data)
+    
     # Clear all filters
     if st.button("Clear All"):
         st.session_state.start_date = data['DT_REG'].min()
@@ -105,18 +113,6 @@ def app():
         st.session_state.search_term = ""
         st.session_state.selected_sit = "All"
         st.experimental_rerun()
-
-    # Display the most recent date in the DT_REG column
-    most_recent_date = data['DT_REG'].max()
-    st.write(f"The most recent date in the dataset is: {most_recent_date.strftime('%d-%m-%Y')}")
-
-    # Set up AgGrid options
-    gb = GridOptionsBuilder.from_dataframe(display_filtered_data)
-    gb.configure_pagination(paginationPageSize=20)  # Set the number of rows per page
-    gb.configure_side_bar()  # Add a sidebar
-    grid_options = gb.build()
-
-    AgGrid(display_filtered_data, gridOptions=grid_options, height=600, width='100%')
 
     # Download the filtered data as an Excel file
     output = io.BytesIO()
