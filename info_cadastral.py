@@ -47,9 +47,9 @@ def app():
         st.session_state.selected_sit = "All"
     
 
-    # Date range filter
-    st.write("### Filter by Data")
-    start_date, end_date = st.date_input("Select date", [st.session_state.start_date, st.session_state.end_date], min_value=data['DT_REG'].min(), max_value=data['DT_REG'].max())
+    # Date range filter in sidebar
+    st.sidebar.write("### Filter by Data")
+    start_date, end_date = st.sidebar.date_input("Select date", [st.session_state.start_date, st.session_state.end_date], min_value=data['DT_REG'].min(), max_value=data['DT_REG'].max())
 
     if start_date is not None and end_date is not None:
         st.session_state.start_date = start_date
@@ -59,11 +59,11 @@ def app():
     else:
         filtered_data = data
 
-    # Filter by TP_FUNDO
-    st.write("### Filter by Tipo de Fundo")
+    # Filter by TP_FUNDO in sidebar
+    st.sidebar.write("### Filter by Tipo de Fundo")
     fund_types = filtered_data['TP_FUNDO'].unique().tolist()
     fund_types.insert(0, "All")  # Add 'All' option to the list
-    selected_fund_type = st.selectbox("Select Fund Type", options=fund_types, index=fund_types.index(st.session_state.selected_fund_type))
+    selected_fund_type = st.sidebar.selectbox("Select Fund Type", options=fund_types, index=fund_types.index(st.session_state.selected_fund_type))
     
     if selected_fund_type != "All":
         st.session_state.selected_fund_type = selected_fund_type
@@ -71,11 +71,11 @@ def app():
     else:
         filtered_data = filtered_data[filtered_data['TP_FUNDO'].isin(fund_types)]
 
-    # Filter by SIT
-    st.write("### Filter by Situação (SIT)")
+    # Filter by SIT in sidebar
+    st.sidebar.write("### Filter by Situação (SIT)")
     sit_options = filtered_data['SIT'].unique().tolist()
     sit_options.insert(0, "All")  # Add 'All' option to the list
-    selected_sit = st.selectbox("Select Situation", options=sit_options, index=sit_options.index(st.session_state.selected_sit))
+    selected_sit = st.sidebar.selectbox("Select Situation", options=sit_options, index=sit_options.index(st.session_state.selected_sit))
     
     if selected_sit != "All":
         st.session_state.selected_sit = selected_sit
@@ -83,9 +83,9 @@ def app():
     else:
         filtered_data = filtered_data[filtered_data['SIT'].isin(sit_options)]
 
-    # Search by CNPJ_FUNDO
-    st.write("### Search by CNPJ")
-    search_term = st.text_input("Enter CNPJ", value=st.session_state.search_term)
+    # Search by CNPJ_FUNDO in sidebar
+    st.sidebar.write("### Search by CNPJ")
+    search_term = st.sidebar.text_input("Enter CNPJ", value=st.session_state.search_term)
     
     if search_term:
         st.session_state.search_term = search_term
@@ -96,7 +96,6 @@ def app():
     for col in display_filtered_data.columns:
         if col.startswith('DT_'):
             display_filtered_data[col] = display_filtered_data[col].dt.strftime('%d-%m-%Y')
-            
 
     # Display the most recent date in the DT_REG column
     most_recent_date = data['DT_REG'].max()
@@ -105,8 +104,8 @@ def app():
     # Display the filtered DataFrame using st.write
     st.write(display_filtered_data)
     
-    # Clear all filters
-    if st.button("Clear All"):
+    # Clear all filters in sidebar
+    if st.sidebar.button("Clear All"):
         st.session_state.start_date = data['DT_REG'].min()
         st.session_state.end_date = data['DT_REG'].max()
         st.session_state.selected_fund_type = "All"
