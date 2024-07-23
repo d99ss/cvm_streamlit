@@ -4,17 +4,16 @@ import requests
 import zipfile
 import io
 from difflib import get_close_matches
-from st_aggrid import AgGrid, GridOptionsBuilder
-from agstyler import PINLEFT, PRECISION_TWO, draw_grid
 from streamlit_option_menu import option_menu
 
 def app():
-    st.title('Fundos de Investimento: Informe Diário')
-    st.write('O INFORME DIÁRIO é um demonstrativo que contém as seguintes informações do fundo, relativas à data de competência:')
-    st.write("Valor total da carteira do fundo, Patrimônio líquido, Valor da cota, Captações realizadas no dia, Resgates pagos no dia, Número de cotistas")
+    st.header('Fundos de Investimento:')
+    st.subheader('Informe Diário')
+    st.write('O INFORME DIÁRIO é um demonstrativo que contém as seguintes informações do fundo:')
+    st.write("Valor total da carteira do fundo, Patrimônio líquido, Valor da cota, Captações realizadas no dia, Resgates pagos no dia, Número de cotistas.")
     st.divider()
 
-    @st.cache_data(persist=True)
+    @st.cache_data(ttl=60)  # Cache the data for 60 seconds
     def load_data(month):
         # Get info diario
         arquivo = f'inf_diario_fi_{month}.csv'
@@ -138,7 +137,7 @@ def app():
     st.write(df_info_diario)
     
     # Clear all button
-    if st.button('Limpar tudo'):
+    if st.button('Clear All'):
         st.session_state['search_term'] = ''
         st.session_state['selected_types'] = []
         st.session_state['date_range'] = (min_date, max_date)
