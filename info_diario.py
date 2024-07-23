@@ -77,6 +77,7 @@ def app():
         "Junho 2024": "202406",
         "Julho 2024": "202407"
     }
+    
     selected_month = st.sidebar.selectbox("Selecione o mês", options=list(months.keys()))
     month_code = months[selected_month]
 
@@ -111,7 +112,7 @@ def app():
         df_info_diario = df_info_diario[df_info_diario['CNPJ_FUNDO'].str.replace(".", "").str.replace("/", "").str.replace("-", "").isin(matches)]
     
     # Slicer for TP_FUNDO in sidebar
-    selected_types = st.sidebar.multiselect("Filtrar por TP_FUNDO", options=df_info_diario['TP_FUNDO'].unique(), default=st.session_state['selected_types'])
+    selected_types = st.sidebar.multiselect("Filtrar por Tipo", options=df_info_diario['TP_FUNDO'].unique(), default=st.session_state['selected_types'])
     st.session_state['selected_types'] = selected_types
     
     if selected_types:
