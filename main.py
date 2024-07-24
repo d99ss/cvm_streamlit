@@ -51,7 +51,19 @@ class MultiApp:
         elif app == 'About':
             about.app()
 
+# Function to include the JavaScript code
+def include_js():
+    st.markdown("""
+        <script type="text/javascript">
+            aclib.runAutoTag({
+                zoneId: 'dlazuyjw08',
+            });
+        </script>
+
+    """, unsafe_allow_html=True)
+
 # Instantiate MultiApp and run the application
 if __name__ == "__main__":
     multi_app = MultiApp()
     multi_app.run()
+    include_js()  # Call the function to include the JavaScript code
