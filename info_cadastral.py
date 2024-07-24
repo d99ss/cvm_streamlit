@@ -48,8 +48,7 @@ def app():
     
 
     # Date range filter in sidebar
-    st.sidebar.write("### Filter by Data")
-    start_date, end_date = st.sidebar.date_input("Select date", [st.session_state.start_date, st.session_state.end_date], min_value=data['DT_REG'].min(), max_value=data['DT_REG'].max())
+    start_date, end_date = st.sidebar.date_input("Selecione o intervalo de datas", [st.session_state.start_date, st.session_state.end_date], min_value=data['DT_REG'].min(), max_value=data['DT_REG'].max())
 
     if start_date is not None and end_date is not None:
         st.session_state.start_date = start_date
@@ -60,10 +59,9 @@ def app():
         filtered_data = data
 
     # Filter by TP_FUNDO in sidebar
-    st.sidebar.write("### Filter by Tipo de Fundo")
     fund_types = filtered_data['TP_FUNDO'].unique().tolist()
     fund_types.insert(0, "All")  # Add 'All' option to the list
-    selected_fund_type = st.sidebar.selectbox("Select Fund Type", options=fund_types, index=fund_types.index(st.session_state.selected_fund_type))
+    selected_fund_type = st.sidebar.selectbox("Filtrar por Tipo", options=fund_types, index=fund_types.index(st.session_state.selected_fund_type))
     
     if selected_fund_type != "All":
         st.session_state.selected_fund_type = selected_fund_type
@@ -72,10 +70,9 @@ def app():
         filtered_data = filtered_data[filtered_data['TP_FUNDO'].isin(fund_types)]
 
     # Filter by SIT in sidebar
-    st.sidebar.write("### Filter by Situação (SIT)")
     sit_options = filtered_data['SIT'].unique().tolist()
     sit_options.insert(0, "All")  # Add 'All' option to the list
-    selected_sit = st.sidebar.selectbox("Select Situation", options=sit_options, index=sit_options.index(st.session_state.selected_sit))
+    selected_sit = st.sidebar.selectbox("Selecione a situação", options=sit_options, index=sit_options.index(st.session_state.selected_sit))
     
     if selected_sit != "All":
         st.session_state.selected_sit = selected_sit
