@@ -81,8 +81,7 @@ def app():
         filtered_data = filtered_data[filtered_data['SIT'].isin(sit_options)]
 
     # Search by CNPJ_FUNDO in sidebar
-    st.sidebar.write("### Search by CNPJ")
-    search_term = st.sidebar.text_input("Enter CNPJ", value=st.session_state.search_term)
+    search_term = st.sidebar.text_input("Pesquisar por CNPJ", value=st.session_state.search_term)
     
     if search_term:
         st.session_state.search_term = search_term
