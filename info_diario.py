@@ -4,14 +4,13 @@ import requests
 import zipfile
 import io
 from difflib import get_close_matches
-from streamlit_option_menu import option_menu
 
 def app():
     st.header('Fundos de Investimento:')
     st.subheader('Informe Diário')
     st.write('O INFORME DIÁRIO é um demonstrativo que contém as seguintes informações do fundo:')
     st.write("Valor total da carteira do fundo, Patrimônio líquido, Valor da cota, Captações realizadas no dia, Resgates pagos no dia, Número de cotistas.")
-    st.divider()
+    st.markdown('---')  # Replaces st.divider()
 
     @st.cache_data(ttl=3600)  # Cache the data for 1 hour (3600 seconds)
     def load_data(month):
