@@ -4,31 +4,36 @@ import requests
 import zipfile
 import io
 from difflib import get_close_matches
+import re
 
 def app():
     st.header('Fundos de Investimento:')
     st.subheader('Informe Diário')
     st.write('O INFORME DIÁRIO é um demonstrativo que contém as seguintes informações do fundo:')
     st.write("Valor total da carteira do fundo, Patrimônio líquido, Valor da cota, Captações realizadas no dia, Resgates pagos no dia, Número de cotistas.")
-    st.markdown('---')  # Replaces st.divider()
+    st.markdown('---')
 
     @st.cache_data(ttl=3600)  # Cache the data for 1 hour (3600 seconds)
     def load_data(month):
-        # Get info diario
-        arquivo = f'inf_diario_fi_{month}.csv'
-        link = f'https://dados.cvm.gov.br/dados/FI/DOC/INF_DIARIO/DADOS/inf_diario_fi_{month}.zip'
-        r_info_diario = requests.get(link)
-        zf = zipfile.ZipFile(io.BytesIO(r_info_diario.content))
-        zf = zf.open(arquivo)
-        lines = zf.readlines()
-        lines = [i.strip().decode('ISO-8859-1') for i in lines]
-        lines = [i.split(';') for i in lines]
-        df_info_diario = pd.DataFrame(lines[1:], columns=lines[0])
+        try:
+            arquivo = f'inf_diario_fi_{month}.csv'
+            link = f'https://dados.cvm.gov.br/dados/FI/DOC/INF_DIARIO/DADOS/inf_diario_fi_{month}.zip'
+            r_info_diario = requests.get(link)
+            r_info_diario.raise_for_status()  # Raise an error for bad status codes
+            zf = zipfile.ZipFile(io.BytesIO(r_info_diario.content))
+            zf = zf.open(arquivo)
+            lines = zf.readlines()
+            lines = [i.strip().decode('ISO-8859-1') for i in lines]
+            lines = [i.split(';') for i in lines]
+            df_info_diario = pd.DataFrame(lines[1:], columns=lines[0])
 
-        # Convert date column to datetime
-        df_info_diario['DT_COMPTC'] = pd.to_datetime(df_info_diario['DT_COMPTC'], format='%Y-%m-%d')
-        
-        return df_info_diario
+            # Convert date column to datetime
+            df_info_diario['DT_COMPTC'] = pd.to_datetime(df_info_diario['DT_COMPTC'], errors='coerce', format='%Y-%m-%d')
+            
+            return df_info_diario
+        except Exception as e:
+            st.error(f"Failed to load data: {e}")
+            return pd.DataFrame()
 
     # Month selection in sidebar
     months = {
@@ -85,12 +90,17 @@ def app():
 
     df_info_diario = st.session_state[f'data_{month_code}']
     
-    # Format the DT_COMPTC column to day-month-year for display
-    df_info_diario['DT_COMPTC'] = df_info_diario['DT_COMPTC'].dt.strftime('%d-%m-%Y')
+    # Check if the date conversion was successful
+    if df_info_diario['DT_COMPTC'].isnull().any():
+        st.error('Date conversion failed for some entries. Please check the date format in the data.')
+    
+    # Only apply dt.strftime if the column is of datetime type
+    if pd.api.types.is_datetime64_any_dtype(df_info_diario['DT_COMPTC']):
+        df_info_diario['DT_COMPTC'] = df_info_diario['DT_COMPTC'].dt.strftime('%d-%m-%Y')
     
     # Initialize session state for filters
-    min_date = pd.to_datetime(df_info_diario['DT_COMPTC'], format='%d-%m-%Y').min().date()
-    max_date = pd.to_datetime(df_info_diario['DT_COMPTC'], format='%d-%m-%Y').max().date()
+    min_date = pd.to_datetime(df_info_diario['DT_COMPTC'], format='%d-%m-%Y', errors='coerce').min().date()
+    max_date = pd.to_datetime(df_info_diario['DT_COMPTC'], format='%d-%m-%Y', errors='coerce').max().date()
     
     if 'search_term' not in st.session_state:
         st.session_state['search_term'] = ''
@@ -108,10 +118,10 @@ def app():
     st.session_state['search_term'] = search_term
     
     if search_term:
-        search_term = search_term.replace(".", "").replace("/", "").replace("-", "")
-        cnpjs = df_info_diario['CNPJ_FUNDO'].str.replace(".", "").str.replace("/", "").str.replace("-", "")
+        search_term = re.sub(r"[^\d]", "", search_term)
+        cnpjs = df_info_diario['CNPJ_FUNDO'].apply(lambda x: re.sub(r"[^\d]", "", x))
         matches = get_close_matches(search_term, cnpjs, n=10, cutoff=0.1)
-        df_info_diario = df_info_diario[df_info_diario['CNPJ_FUNDO'].str.replace(".", "").str.replace("/", "").str.replace("-", "").isin(matches)]
+        df_info_diario = df_info_diario[cnpjs.isin(matches)]
     
     # Slicer for TP_FUNDO in sidebar
     selected_types = st.sidebar.multiselect("Filtrar por Tipo", options=df_info_diario['TP_FUNDO'].unique(), default=st.session_state['selected_types'])
@@ -129,13 +139,14 @@ def app():
     end_date = pd.to_datetime(end_date, format='%Y-%m-%d')
     
     # Ensure DT_COMPTC is converted back to datetime before filtering
-    df_info_diario['DT_COMPTC'] = pd.to_datetime(df_info_diario['DT_COMPTC'], format='%d-%m-%Y')
+    df_info_diario['DT_COMPTC'] = pd.to_datetime(df_info_diario['DT_COMPTC'], format='%d-%m-%Y', errors='coerce')
     
     df_info_diario = df_info_diario[(df_info_diario['DT_COMPTC'] >= start_date) & 
                                     (df_info_diario['DT_COMPTC'] <= end_date)]
     
     # Format the DT_COMPTC column back to day-month-year for display
-    df_info_diario['DT_COMPTC'] = df_info_diario['DT_COMPTC'].dt.strftime('%d-%m-%Y')
+    if pd.api.types.is_datetime64_any_dtype(df_info_diario['DT_COMPTC']):
+        df_info_diario['DT_COMPTC'] = df_info_diario['DT_COMPTC'].dt.strftime('%d-%m-%Y')
     
     st.write(df_info_diario)
     
