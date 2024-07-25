@@ -13,7 +13,7 @@ def app():
     st.write("Valor total da carteira do fundo, Patrimônio líquido, Valor da cota, Captações realizadas no dia, Resgates pagos no dia, Número de cotistas.")
     st.divider()
 
-    @st.cache_data(ttl=60)  # Cache the data for 60 seconds
+    @st.cache_data(ttl=3600)  # Cache the data for 1 hour (3600 seconds)
     def load_data(month):
         # Get info diario
         arquivo = f'inf_diario_fi_{month}.csv'
@@ -81,7 +81,10 @@ def app():
     selected_month = st.sidebar.selectbox("Selecione o mês", options=list(months.keys()))
     month_code = months[selected_month]
 
-    df_info_diario = load_data(month_code)
+    if f'data_{month_code}' not in st.session_state:
+        st.session_state[f'data_{month_code}'] = load_data(month_code)
+
+    df_info_diario = st.session_state[f'data_{month_code}']
     
     # Format the DT_COMPTC column to day-month-year for display
     df_info_diario['DT_COMPTC'] = df_info_diario['DT_COMPTC'].dt.strftime('%d-%m-%Y')
