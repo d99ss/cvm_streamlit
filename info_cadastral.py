@@ -45,6 +45,8 @@ def app():
         st.session_state.search_term = ""
     if "selected_sit" not in st.session_state:
         st.session_state.selected_sit = "All"
+    if "search_name" not in st.session_state:
+        st.session_state.search_name = ""
     
 
     # Date range filter in sidebar
@@ -87,6 +89,13 @@ def app():
         st.session_state.search_term = search_term
         filtered_data = filtered_data[filtered_data['CNPJ_FUNDO'].str.contains(search_term, case=False, na=False)]
 
+    # Search by DENOM_SOCIAL in sidebar
+    search_name = st.sidebar.text_input("Pesquisar por Nome do Fundo", value=st.session_state.search_name)
+    
+    if search_name:
+        st.session_state.search_name = search_name
+        filtered_data = filtered_data[filtered_data['DENOM_SOCIAL'].str.contains(search_name.upper(), case=False, na=False)]
+
     # Create a copy of the filtered dataframe for display with formatted dates
     display_filtered_data = filtered_data.copy()
     for col in display_filtered_data.columns:
@@ -107,6 +116,7 @@ def app():
         st.session_state.selected_fund_type = "All"
         st.session_state.search_term = ""
         st.session_state.selected_sit = "All"
+        st.session_state.search_name = ""
         st.experimental_rerun()
 
     # Download the filtered data as an Excel file
