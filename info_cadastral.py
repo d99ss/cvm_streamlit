@@ -11,8 +11,8 @@ def app():
     st.write("Dados cadastrais de fundos de investimento estruturados e não estruturados (ICVM 555), tais como: CNPJ, data de registro e situação do fundo.")
     st.divider()
 
-    # Get info cadastral
-    @st.cache_data(ttl=60)  # Cache the data for 60 seconds
+    # Cache the data with a TTL of 24 hours
+    @st.cache_data(ttl=3600)  # Cache the data for 24 hours
     def load_data():
         start_time = time.time()
         r = requests.get('https://dados.cvm.gov.br/dados/FI/CAD/DADOS/cad_fi.csv')
@@ -32,7 +32,11 @@ def app():
 
         return data
 
-    data = load_data()
+    # Load data only once per session
+    if 'data' not in st.session_state:
+        st.session_state.data = load_data()
+
+    data = st.session_state.data
 
     # State management for filters
     if "start_date" not in st.session_state:
