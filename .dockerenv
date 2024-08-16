@@ -1,0 +1,22 @@
+# Use the official Python image from the Docker Hub
+ARG PYTHON_IMAGE=python:3.12-slim
+FROM ${PYTHON_IMAGE}
+
+# Set the working directory
+WORKDIR /app
+
+# Copy the requirements file and install Python dependencies
+COPY requirements.txt .
+RUN python -m pip install -r requirements.txt --no-cache-dir
+
+# Copy the entire application code
+COPY . .
+
+# Copy the customized index.html to the Streamlit static directory
+COPY index.html /usr/local/lib/python3.12/site-packages/streamlit/static/index.html
+
+# Expose the default port for Streamlit
+EXPOSE 8080
+
+# Command to run the application
+ENTRYPOINT ["streamlit", "run", "main.py", "--server.port=8080", "--server.enableCORS=false"]
